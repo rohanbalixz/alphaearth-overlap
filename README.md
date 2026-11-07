@@ -31,7 +31,7 @@ results are used. If compute is short, `--lite` exports GCVI + NDVI only at 120 
 gate set in advance (PREREGISTRATION.md, Amendment 1). Run `--lite --years 2017` first and check
 its compute use in the Earth Engine Tasks tab before starting all eight years.
 
-## Results (AlphaEarth, AlphaEarth + climate, climate only; the RS arm is pending the Earth Engine export)
+## Results (AlphaEarth, AlphaEarth + climate, climate only; the Landsat arm was not run, see below)
 
 ![figure](results/figure.png)
 
@@ -66,7 +66,7 @@ of state labels):
 | P3 | That relation survives GDD distance, geographic distance and state fixed effects | **Not supported.** Partial coefficient -0.16, p = 0.09. It does beat GDD distance (rho = 0.12, p = 0.24). |
 | P4 | Overlap relates more to the ranking part than to the level part | **Supported.** abs(rho) 0.27 vs 0.18 |
 | P5 | Lower yield-range coverage explains which direction has the larger level loss | **Not supported.** 32/66 pairs, 48% |
-| P1, P6 | AlphaEarth overlap is thinner than Landsat overlap, and that gap tracks the loss gap | Pending the RS export |
+| P1, P6 | AlphaEarth overlap is thinner than Landsat overlap, and that gap tracks the loss gap | **Not tested** (see "Landsat arm") |
 
 **The main caveat (exploratory).** The plain distance between states predicts ranking loss as
 well as any overlap measure does (rho = 0.41, p = 0.002). In AlphaEarth space, overlap and
@@ -81,6 +81,16 @@ information about which AlphaEarth transfers will lose most. With these inputs, 
 be separated from how far apart the states are. The RS arm is the test that could separate them:
 if Landsat features overlap across distant but agronomically similar states, overlap and geography
 come apart there.
+
+**Landsat arm (not run).** The low-compute version (`--lite`: GCVI and NDVI, 120 m) passed a
+one-county check on Earth Engine: Story County, IA, 2017, with the fitted GCVI peaking on day 210
+and about 20 clear observations per pixel. A full-year export for the 12 states, however, used
+about 25 EECU-hours per minute and more than 136 EECU-hours in its first 6 minutes, without
+reaching measurable progress. At that rate the eight years cannot fit the 150 EECU-hours a month
+of Earth Engine's free noncommercial tier, so the export was cancelled and P1 and P6 remain
+untested. That cost is itself in line with the paper's point (Sec. 5.1) that AlphaEarth embeddings
+are far cheaper to obtain than Landsat time-series features. Running this arm needs either the
+paper's RS features or a larger compute allocation.
 
 All numbers: [results/summary.md](results/summary.md), [results/tests.json](results/tests.json),
 and per-pair rows in [results/pairs.csv](results/pairs.csv) (the table view of the figure).
