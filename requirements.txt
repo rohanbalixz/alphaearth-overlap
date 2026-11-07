@@ -1,0 +1,6 @@
+pandas==2.2.3
+scikit-learn==1.6.1
+scipy==1.13.1
+matplotlib==3.9.4
+# only for gee/export_landsat_harmonics.py:
+# earthengine-api
