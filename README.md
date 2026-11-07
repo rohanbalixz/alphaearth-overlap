@@ -27,7 +27,9 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 RS arm: `gee/export_landsat_harmonics.py` (Earth Engine) and then `src/rs_features.py`. Once
 `data/rs_features.csv` exists, the scripts above add the `RS` and `RS-noclim` arms automatically.
 **Gate:** the RS arm must reproduce Table 6 (East->West R2 ~0.66, West->East ~0.60) before its
-results are used.
+results are used. If compute is short, `--lite` exports GCVI + NDVI only at 120 m, with a looser
+gate set in advance (PREREGISTRATION.md, Amendment 1). Run `--lite --years 2017` first and check
+its compute use in the Earth Engine Tasks tab before starting all eight years.
 
 ## Results (AlphaEarth, AlphaEarth + climate, climate only; the RS arm is pending the Earth Engine export)
 

@@ -46,9 +46,11 @@ def phenology(coef):
 
 
 def build(raw):
-    raw = raw.dropna(subset=[f"{x}_{y}" for x in XVARS for y in YVARS]).copy()
+    """Works for the full export (8 bands -> 80 features) and the --lite one (GCVI + NDVI -> 20)."""
+    yvars = [y for y in YVARS if f"c_{y}" in raw.columns]
+    raw = raw.dropna(subset=[f"{x}_{y}" for x in XVARS for y in yvars]).copy()
     feats = {"FIPS": raw["GEOID"].astype(int).values, "year": raw["year"].astype(int).values}
-    for y in YVARS:
+    for y in yvars:
         coef = raw[[f"{x}_{y}" for x in XVARS]].values
         for x, col in zip(XVARS, coef.T):
             feats[f"{y}_{x}"] = col
@@ -58,15 +60,19 @@ def build(raw):
 
 
 def main():
-    files = sorted((DATA / "gee").glob("rs_harm_*.csv"))
+    full, lite = sorted((DATA / "gee").glob("rs_harm_*.csv")), sorted((DATA / "gee").glob("rs_lite_*.csv"))
+    if full and lite:
+        sys.exit("data/gee/ holds both rs_harm_* (full) and rs_lite_* files; keep one kind")
+    files = full or lite
     if not files:
-        sys.exit("no data/gee/rs_harm_*.csv found; run gee/export_landsat_harmonics.py first")
+        sys.exit("no data/gee/rs_harm_*.csv or rs_lite_*.csv found; run gee/export_landsat_harmonics.py first")
     raw = pd.concat([pd.read_csv(f) for f in files], ignore_index=True).drop_duplicates(["GEOID", "year"])
     out = build(raw)
-    assert out.shape[1] == 2 + 80, out.shape
+    n_feat = out.shape[1] - 2
+    assert n_feat == (80 if full else 20), out.shape
     out.to_csv(DATA / "rs_features.csv", index=False)
-    print(f"wrote data/rs_features.csv: {len(out)} county-years x 80 features "
-          f"(dropped {len(raw) - len(out)} with no corn pixels / too few clear observations)")
+    print(f"wrote data/rs_features.csv ({'full' if full else 'LITE, Amendment 1'}): {len(out)} county-years x "
+          f"{n_feat} features (dropped {len(raw) - len(out)} with no corn pixels / too few clear observations)")
 
 
 if __name__ == "__main__":

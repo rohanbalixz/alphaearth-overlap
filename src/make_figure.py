@@ -24,6 +24,9 @@ STYLE = {  # fixed categorical slots 1-3 of the reference palette (validated all
 
 
 def main():
+    rs_file = RESULTS.parent / "data" / "rs_features.csv"
+    if rs_file.exists() and len(pd.read_csv(rs_file, nrows=1).columns) - 2 == 20:
+        STYLE["RS-noclim"]["label"] = "Landsat GCVI+NDVI (lite)"          # PREREGISTRATION Amendment 1
     pairs = pd.read_csv(RESULTS / "pairs.csv")
     tests = json.loads((RESULTS / "tests.json").read_text())
     arms = [a for a in STYLE if a in set(pairs.arm)]

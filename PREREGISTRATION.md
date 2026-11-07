@@ -75,3 +75,19 @@ multiplicity claims.
 - P2 fails if rho >= 0 or p >= 0.05. That is then the headline, stated plainly.
 - No measure, threshold, K or loss definition will be changed after seeing the results. Any
   extra analysis will be labelled exploratory.
+
+## Amendment 1 (2026-11-07, before any Landsat data exists)
+
+Reason: compute limits on Earth Engine's free noncommercial tier, and the Nov 11 deadline. If
+the full 80-feature Landsat export cannot finish in time, a lower-compute Landsat arm may be
+used instead.
+
+- `--lite` export: GCVI and NDVI only, the same 10 features each (20 in total), county means at
+  120 m instead of 30 m. The QA and CDL corn masks, season window, model, overlap measures and
+  tests are unchanged. GCVI and NDVI were chosen because the paper's feature-importance analysis
+  (Sec. 5.2.2, Fig. 9) finds GCVI more informative than NDVI and the raw bands.
+- Labelling: the lite arm is reported as "Landsat GCVI+NDVI (lite)", never as the paper's RS
+  baseline.
+- Gate: both East->West and West->East R2 must be within 0.15 of the paper's RS values
+  (>= 0.51 and >= 0.45). If the gate fails, P1 and P6 are reported as not tested.
+- P1 and P6 apply unchanged, with `RS-noclim` = the lite features without climate.

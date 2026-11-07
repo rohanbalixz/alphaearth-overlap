@@ -22,6 +22,8 @@ Usage:
   pip install earthengine-api && earthengine authenticate
   python gee/export_landsat_harmonics.py --project <gcp-project>               # 8 tasks (one per year)
   python gee/export_landsat_harmonics.py --project <gcp-project> --per-state   # 96 smaller tasks
+  python gee/export_landsat_harmonics.py --project <gcp-project> --lite        # low compute: GCVI+NDVI, 120 m
+  python gee/export_landsat_harmonics.py --project <gcp-project> --lite --years 2017   # measure cost first
   # Tasks write CSVs to Google Drive folder alphaearth_overlap/. Put them in data/gee/, then:
   .venv/bin/python src/rs_features.py
 """
@@ -61,7 +63,7 @@ def prep(img, sr_bands):
     return ee.Image(out.copyProperties(img, ["system:time_start"]))
 
 
-def county_coefficients(year, counties, start, end, min_obs):
+def county_coefficients(year, counties, start, end, min_obs, yvars=YVARS, scale=30):
     region = ee.Geometry.Rectangle(BBOX)
     coll = None
     for cid, bands in SOURCES.items():
@@ -69,13 +71,13 @@ def county_coefficients(year, counties, start, end, min_obs):
              .filterDate(f"{year}-{start}", f"{year}-{end}")
              .map(lambda im, b=bands: prep(im, b)))
         coll = c if coll is None else coll.merge(c)
-    coll = coll.select(XVARS + YVARS)
-    fit = coll.reduce(ee.Reducer.linearRegression(numX=len(XVARS), numY=len(YVARS)))
-    coef = fit.select("coefficients").arrayFlatten([XVARS, YVARS])      # bands like "cos1_gcvi"
-    nobs = coll.select("blue").count().rename("nobs")
+    coll = coll.select(XVARS + yvars)
+    fit = coll.reduce(ee.Reducer.linearRegression(numX=len(XVARS), numY=len(yvars)))
+    coef = fit.select("coefficients").arrayFlatten([XVARS, yvars])      # bands like "cos1_gcvi"
+    nobs = coll.select(yvars[0]).count().rename("nobs")
     corn = ee.Image(f"USDA/NASS/CDL/{year}").select("cropland").eq(1)
     img = coef.addBands(nobs).updateMask(nobs.gte(min_obs)).updateMask(corn).float()
-    stats = img.reduceRegions(collection=counties, reducer=ee.Reducer.mean(), scale=30, tileScale=16)
+    stats = img.reduceRegions(collection=counties, reducer=ee.Reducer.mean(), scale=scale, tileScale=16)
     return stats.map(lambda f: ee.Feature(None, f.toDictionary()).set("year", year))
 
 
@@ -88,19 +90,26 @@ def main():
     ap.add_argument("--min-obs", type=int, default=8, help="min clear observations per pixel for a fit")
     ap.add_argument("--per-state", action="store_true", help="one task per state-year instead of per year")
     ap.add_argument("--drive-folder", default="alphaearth_overlap")
+    ap.add_argument("--lite", action="store_true",
+                    help="low-compute version: GCVI + NDVI only, county means at 120 m (PREREGISTRATION Amendment 1)")
+    ap.add_argument("--scale", type=int, default=None, help="reduceRegions scale in m (default 30; 120 with --lite)")
     a = ap.parse_args()
+    yvars = ["ndvi", "gcvi"] if a.lite else YVARS
+    scale = a.scale or (120 if a.lite else 30)
+    tag = "rs_lite" if a.lite else "rs_harm"
 
     ee.Initialize(project=a.project)
     all_cty = ee.FeatureCollection("TIGER/2018/Counties").filter(
         ee.Filter.inList("STATEFP", list(STATEFP.values())))
     groups = {k: [v] for k, v in STATEFP.items()} if a.per_state else {"all": list(STATEFP.values())}
-    selectors = ["GEOID", "STATEFP", "year", "nobs"] + [f"{x}_{y}" for x in XVARS for y in YVARS]
+    selectors = ["GEOID", "STATEFP", "year", "nobs"] + [f"{x}_{y}" for x in XVARS for y in yvars]
+    print(f"bands {yvars}, scale {scale} m, years {a.years}")
     for year in a.years:
         for name, fps in groups.items():
             cty = all_cty.filter(ee.Filter.inList("STATEFP", fps))
-            desc = f"rs_harm_{year}" + ("" if name == "all" else f"_{name}")
+            desc = f"{tag}_{year}" + ("" if name == "all" else f"_{name}")
             task = ee.batch.Export.table.toDrive(
-                collection=county_coefficients(year, cty, a.start, a.end, a.min_obs),
+                collection=county_coefficients(year, cty, a.start, a.end, a.min_obs, yvars, scale),
                 description=desc, folder=a.drive_folder, fileNamePrefix=desc,
                 fileFormat="CSV", selectors=selectors)
             task.start()

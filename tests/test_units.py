@@ -81,3 +81,9 @@ assert abs(f.ndvi_b30[0] - exp_b30) < 1e-3 and abs(f.ndvi_a30[0] - exp_b30) < 1e
 assert abs(f.red_b30_int[0] - f.red_a30_int[0]) < 1e-6 and 30 * exp_b30 < f.red_b30_int[0] < 30 * 0.5
 print("RS phenology OK: peak", round(f.gcvi_peak[0], 4), "b30", round(f.ndvi_b30[0], 4), "int", round(f.red_b30_int[0], 3))
 print("ALL TESTS PASSED (incl. RS)")
+
+# 6. --lite export (GCVI + NDVI only) -> 20 features
+lite = {k: v for k, v in row.items() if k in ("GEOID", "year") or k.endswith(("_ndvi", "_gcvi"))}
+fl = build(pd.DataFrame([lite]))
+assert fl.shape == (1, 22) and abs(fl.gcvi_peak[0] - 0.5) < 1e-4, fl.shape
+print("RS lite OK:", fl.shape[1] - 2, "features")
