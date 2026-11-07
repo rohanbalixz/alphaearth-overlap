@@ -142,10 +142,43 @@ The fitted GCVI peaked on day 210, with about 20 clear observations per pixel. A
 6 minutes without measurable progress. At that rate the eight years do not fit the 150 EECU-hours
 per month of Earth Engine's free noncommercial tier, so P1 and P6 remain untested.
 
-## 9. Software and runtime
+## 9. Exploratory follow-ups (F1–F3, not pre-registered)
+
+These analyses were designed **after** the pre-registered results were known, to probe three
+explanations they raised. They are reported separately and carry no confirmatory claim.
+
+- **F1, concept shift and irrigation.**
+  - **Excess error.** For each AEF transfer, the excess squared error of the level-matched
+    prediction over the target state's own model is computed per county-year, in units of the
+    target's yield variance. Its mean over a pair is that pair's ranking loss, computed from
+    seed-averaged predictions; its rank correlation with the pre-registered loss is above 0.9999.
+  - **Coverage split.** County-years are split by coverage: subspace propensity ≥ 0.05, identical
+    to `sub_cover`. Loss on covered county-years is failure that overlap cannot see.
+  - **Irrigation share.** County irrigated area (USGS 2015, `IR-IrTot`; several states report only
+    the total, not the crop split) divided by county area.
+  - **Pair-level test.** Is the absolute difference in state-mean irrigation share related to
+    ranking loss (QAP), and does it survive distance, GDD difference, overlap and state fixed
+    effects (DSP)?
+  - **County-level test.** Within each transfer, Spearman correlation between irrigation share and
+    the transfer-specific error, i.e. the transfer residual minus the target model's residual.
+    Subtracting the target model's residual controls for the shrinkage that makes any model
+    under-predict high-yield counties.
+- **F2, model dependence.** The E1 and E3 designs are repeated with ridge regression
+  (standardized inputs, `RidgeCV`, α ∈ 10⁻³…10⁴), which extrapolates linearly. A random forest
+  cannot predict outside the range of its training yields.
+- **F3, geography.**
+  - **Variance shares.** For each AEF band, climate variable and yield, the share of variance that
+    is between states, between counties (time-invariant), and on a cubic surface in standardized
+    longitude and latitude.
+  - **Skill.** Within-county anomaly skill is the R² for yield anomalies from feature anomalies.
+    It is computed leave-one-year-out, with county means taken from training years only.
+    Between-county skill is the R² for county-mean yield from county-mean features under
+    county-held-out CV.
+
+## 10. Software and runtime
 
 - **Environment.** Python 3.9.6 with the pinned versions in `requirements.txt`. The full pipeline
-  takes 15–25 minutes on an 11-core laptop; see `results/environment.txt`.
+  takes 15–25 minutes on an 11-core laptop; see `results/preregistered/environment.txt`.
 - **Determinism.** All randomness is seeded: random-forest seeds 0–4, fixed permutation seeds and
   deterministic `GroupKFold`.
 
@@ -159,6 +192,9 @@ per month of Earth Engine's free noncommercial tier, so P1 and P6 remain unteste
   with high-dimensional covariates. *Journal of Econometrics*, 221(2), 644–654.
 - Dekker, D., Krackhardt, D., Snijders, T.A.B. (2007). Sensitivity of MRQAP tests to collinearity
   and autocorrelation conditions. *Psychometrika*, 72(4), 563–581.
+- Dieter, C.A., Linsey, K.S., Caldwell, R.R., Harris, M.A., Ivahnenko, T.I., Lovelace, J.K., Maupin,
+  M.A., Barber, N.L. (2018). Estimated use of water in the United States county-level data for 2015
+  (ver. 2.0). U.S. Geological Survey data release. https://doi.org/10.5066/F7TB15V5
 - Hansen, B.B. (2008). The prognostic analogue of the propensity score. *Biometrika*, 95(2),
   481–488.
 - Kluger, D.M., Di Tommaso, S., Lobell, D.B. (2025). Precrop payoffs: causal machine learning

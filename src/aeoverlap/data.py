@@ -20,6 +20,9 @@ import pandas as pd
 ROOT = Path(os.environ.get("AEOVERLAP_ROOT", Path(__file__).resolve().parents[2]))
 DATA = ROOT / "data"
 RESULTS = ROOT / "results"
+PREREG = RESULTS / "preregistered"        # E1-E6, fixed in PREREGISTRATION.md
+EXPLORATORY = RESULTS / "exploratory"    # F1-F3, designed after the pre-registered results
+FIGURES = RESULTS / "figures"
 SOURCE_CSV = DATA / "US_FM_Corn_Data_shared.csv"
 
 AEF = [f"A{k:02d}" for k in range(64)]
@@ -61,12 +64,41 @@ def geo_centroid(geo_json: str) -> tuple[float, float]:
             float(np.average([p[1] for p in parts], weights=w)))
 
 
+def geo_area_km2(geo_json: str) -> float:
+    """Approximate area (km^2) of a GeoJSON Polygon/MultiPolygon: outer rings, local equirectangular scale."""
+    g = json.loads(geo_json)
+    polys = [g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]
+    total = 0.0
+    for p in polys:
+        lon, lat = np.asarray(p[0], float).T
+        x, y = lon * 111.320 * np.cos(np.radians(lat.mean())), lat * 110.574
+        total += abs((x[:-1] * y[1:] - x[1:] * y[:-1]).sum()) / 2
+    return float(total)
+
+
+USGS_CSV = DATA / "usgs" / "usco2015v2.0.csv"
+
+
+def irrigation_share() -> pd.Series:
+    """County irrigated area, 2015 (USGS; Dieter et al. 2018), in km^2, indexed by FIPS.
+    Uses IR-IrTot (total irrigated thousand acres: crops + golf) because several states (NE, MO, ND, SD, WI)
+    report only the total, not the crop split (IC-IrTot = "--"). Golf is negligible in farm counties.
+    Divide by county area for an irrigation share. Used only in the exploratory follow-ups."""
+    if not USGS_CSV.exists():
+        raise FileNotFoundError(f"{USGS_CSV} not found; run `make data` first")
+    u = pd.read_csv(USGS_CSV, skiprows=1, low_memory=False)
+    u = u[pd.to_numeric(u["FIPS"], errors="coerce").notna()]
+    irr_km2 = pd.to_numeric(u["IR-IrTot"], errors="coerce") * 1000 * 0.00404686
+    return pd.Series(irr_km2.values, index=u["FIPS"].astype(int).values, name="irr_km2")
+
+
 def load(use_rs: bool = True) -> tuple[pd.DataFrame, dict[str, list[str]]]:
     """Return ``(df, arms)``: one row per county-year, and arm name -> feature columns."""
     if not SOURCE_CSV.exists():
         raise FileNotFoundError(f"{SOURCE_CSV} not found; run `make data` (scripts/get_data.sh) first")
     df = pd.read_csv(SOURCE_CSV)
     df["lon"], df["lat"] = zip(*df[".geo"].map(geo_centroid))
+    df["area_km2"] = df[".geo"].map(geo_area_km2)
     df = df.drop(columns=[".geo"])
     df["st"] = df["State"].map(ABBR)
     df["FIPS"] = df["FIPS"].astype(int)

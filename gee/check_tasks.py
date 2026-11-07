@@ -1,5 +1,5 @@
 """Show recent Earth Engine export tasks with state and compute used (EECU-hours).
-Run: .venv/bin/python gee/task_status.py <gcp-project>"""
+Run: .venv/bin/python gee/check_tasks.py <gcp-project>"""
 import sys
 import warnings
 

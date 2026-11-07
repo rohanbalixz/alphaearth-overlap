@@ -16,3 +16,16 @@ if [ "$GOT" != "$SHA256" ]; then
   exit 1
 fi
 echo "saved $OUT ($(wc -l < "$OUT" | tr -d ' ') lines, sha256 verified)"
+
+# Exploratory follow-ups only: USGS county water use, 2015 (Dieter et al. 2018, doi:10.5066/F7TB15V5).
+# U.S. Government work (public domain); fetched rather than committed to keep the repository small.
+USGS_SHA256=b7980ea2fe27152a0674a4318f828d76ae0f238823f29990edcce32c3b440d50
+USGS_OUT=data/usgs/usco2015v2.0.csv
+mkdir -p data/usgs
+curl -sSfL -o "$USGS_OUT" "https://www.sciencebase.gov/catalog/file/get/5af3311be4b0da30c1b245d8?f=__disk__eb%2F74%2Feb%2Feb74ebb41169c76aaf374990bd5a71cac82604c1"
+GOT=$( (command -v sha256sum >/dev/null && sha256sum "$USGS_OUT" || shasum -a 256 "$USGS_OUT") | cut -d' ' -f1)
+if [ "$GOT" != "$USGS_SHA256" ]; then
+  echo "checksum mismatch for $USGS_OUT: got $GOT, expected $USGS_SHA256" >&2
+  exit 1
+fi
+echo "saved $USGS_OUT (sha256 verified)"

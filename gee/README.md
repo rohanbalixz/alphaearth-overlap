@@ -2,14 +2,14 @@
 
 These scripts rebuild the remote-sensing baseline of Ma et al. (2026) as county means over CDL corn
 pixels. They are needed only for predictions P1 and P6, which compare AlphaEarth overlap with
-Landsat overlap. See [docs/METHODS.md §8](../docs/METHODS.md) for the method and the documented
+Landsat overlap. See [docs/methods.md §8](../docs/methods.md) for the method and the documented
 deviations.
 
 | Script | Purpose |
 |---|---|
 | `authenticate.py` | One-time Earth Engine sign-in. It uses the Python API because the `earthengine` CLI in earthengine-api 1.6.15 needs Python >= 3.10. |
 | `export_landsat_harmonics.py` | Starts export tasks: per-pixel harmonic fits, averaged over corn pixels per county, written to Google Drive as CSV |
-| `task_status.py` | Lists recent tasks with state and EECU-hours used |
+| `check_tasks.py` | Lists recent tasks with state and EECU-hours used |
 
 ```bash
 .venv/bin/pip install earthengine-api==1.6.15
@@ -18,9 +18,9 @@ deviations.
 .venv/bin/python gee/export_landsat_harmonics.py --project <gcp-project> --lite --years 2017 --smoke 19169
 # 2. measure the cost of one year before committing to eight
 .venv/bin/python gee/export_landsat_harmonics.py --project <gcp-project> --lite --years 2017
-.venv/bin/python gee/task_status.py <gcp-project>
+.venv/bin/python gee/check_tasks.py <gcp-project>
 # 3. put the Drive CSVs in data/gee/, then
-.venv/bin/python -m aeoverlap.rs_features && make results evaluate figure
+.venv/bin/python -m aeoverlap.rs_features && make preregistered evaluate figures
 ```
 
 ## Compute: read before running

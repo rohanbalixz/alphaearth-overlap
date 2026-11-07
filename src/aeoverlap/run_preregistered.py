@@ -1,8 +1,8 @@
 """E1 (reproduction of Ma et al. 2026, Table 6), E3 (132-pair transfer matrix and target oracle) and
 E4 (overlap measures) for every input arm.
 
-Writes results/e1_region_transfer.csv, results/pairs.csv (one row per arm x ordered pair) and
-results/environment.txt. Run: python -m aeoverlap.pipeline
+Writes results/preregistered/: e1_region_transfer.csv, e3_e4_pairs.csv (one row per arm x ordered pair)
+and environment.txt. Run: python -m aeoverlap.run_preregistered
 """
 from __future__ import annotations
 
@@ -14,12 +14,13 @@ from importlib.metadata import version
 
 import pandas as pd
 
-from .data import EAST, RESULTS, SOURCE_CSV, STATES, WEST, load, state_frames
+from .data import EAST, PREREG, SOURCE_CSV, STATES, WEST, load, state_frames
 from .overlap import full_space, knn_cover, rivals, yield_range_cover, yield_subspace
 from .transfer import oracle, pair_matrix, region_transfer
 
 
-def _environment(started: float, finished: float) -> str:
+def environment_report(started: float, finished: float) -> str:
+    """Versions, hardware, source-data checksum and runtime, written next to every run's outputs."""
     pkgs = ["numpy", "pandas", "scikit-learn", "scipy", "matplotlib"]
     sha = hashlib.sha256(SOURCE_CSV.read_bytes()).hexdigest()
     return "\n".join([
@@ -36,11 +37,11 @@ def main() -> None:
     t0 = time.time()
     df, arms = load()
     frames = state_frames(df)
-    RESULTS.mkdir(exist_ok=True)
+    PREREG.mkdir(parents=True, exist_ok=True)
     print(f"[data] {len(df)} county-years, arms: {list(arms)}")
 
     reg = region_transfer(df, arms, EAST, WEST)
-    reg.to_csv(RESULTS / "e1_region_transfer.csv", index=False)
+    reg.to_csv(PREREG / "e1_region_transfer.csv", index=False)
     print("[E1] East<->West (Ma et al. 2026, Table 6, county corn RF: AEF 0.02/0.51, RS 0.66/0.60)\n",
           reg[["arm", "direction", "R2", "R2_level", "r2_corr", "rmse"]].round(3).to_string(index=False),
           f"\n  ({time.time() - t0:.0f}s)", flush=True)
@@ -74,9 +75,9 @@ def main() -> None:
     pairs["loss_total"] = pairs.R2_oracle - pairs.R2
     pairs["loss_level"] = pairs.R2_level - pairs.R2
     pairs["loss_rank"] = pairs.R2_oracle - pairs.R2_level
-    pairs.to_csv(RESULTS / "pairs.csv", index=False)
-    (RESULTS / "environment.txt").write_text(_environment(t0, time.time()))
-    print(f"[done] wrote results/pairs.csv ({len(pairs)} rows) in {time.time() - t0:.0f}s")
+    pairs.to_csv(PREREG / "e3_e4_pairs.csv", index=False)
+    (PREREG / "environment.txt").write_text(environment_report(t0, time.time()))
+    print(f"[done] wrote results/preregistered/e3_e4_pairs.csv ({len(pairs)} rows) in {time.time() - t0:.0f}s")
 
 
 if __name__ == "__main__":

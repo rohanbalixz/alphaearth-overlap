@@ -5,7 +5,7 @@ Landsat 7/8/9 Collection 2 Level-2 surface reflectance; six bands (blue, green, 
 SWIR2) + NDVI + GCVI; QA mask (cloud, dilated cloud, cloud shadow, snow, water) and saturation
 mask; CDL corn mask; second-order harmonic regression
     y(t) = c + a1 cos(2 pi t) + b1 sin(2 pi t) + a2 cos(4 pi t) + b2 sin(4 pi t),  t = fraction of year.
-src/rs_features.py then derives the phenology metrics (peak, b30, a30, b30_int, a30_int) from the
+aeoverlap.rs_features then derives the phenology metrics (peak, b30, a30, b30_int, a30_int) from the
 county curves, giving 10 features x 8 bands = 80, as in the paper.
 
 Documented deviations (see README):
@@ -15,8 +15,10 @@ Documented deviations (see README):
   2. Growing-season window: the paper does not state it. Default Apr 1 - Oct 31 (--start/--end).
   3. GCVI = NIR/Green - 1 (the standard form). A constant offset does not change a random forest.
 
-UNTESTED on Earth Engine: written on a machine without EE credentials. It must pass the gate in
-README before its features are trusted: RS arm East->West R2 ~0.66, West->East ~0.60 (paper Table 6).
+Status: the --smoke check passed on Earth Engine (Story County, IA, 2017: fitted GCVI peak on day 210,
+~20 clear observations per pixel). A full 12-state year exceeds the free noncommercial tier (gee/README.md).
+Before its features are trusted, the RS arm must reproduce Ma et al. (2026), Table 6: East->West R2 ~0.66,
+West->East ~0.60.
 
 Usage:
   pip install earthengine-api && earthengine authenticate

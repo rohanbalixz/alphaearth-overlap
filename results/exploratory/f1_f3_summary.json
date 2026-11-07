@@ -1,0 +1,391 @@
+{
+  "_note": "EXPLORATORY: not pre-registered. Designed after the pre-registered results were known.",
+  "irrigation_share_state_mean": {
+    "IA": 0.004489104088666893,
+    "IL": 0.018375989548885287,
+    "IN": 0.01842509700790607,
+    "KS": 0.05772847362790947,
+    "MI": 0.023090113281524837,
+    "MN": 0.018631446289622888,
+    "MO": 0.040458760255673874,
+    "ND": 0.0069835394305794805,
+    "NE": 0.25684003109754155,
+    "OH": 0.0029159722424685133,
+    "SD": 0.010819851915260423,
+    "WI": 0.018319896308352814
+  },
+  "F1_concept_shift": {
+    "loss_rank_seed_avg_vs_prereg_spearman": 0.9999530401298179,
+    "median_loss_rank_covered": 0.5175546374301857,
+    "median_loss_rank_uncovered": 0.47258030499161097,
+    "pooled_share_of_ranking_loss_on_covered": 0.563756585549813,
+    "pooled_share_of_county_years_covered": 0.5953719008264463,
+    "pairs_with_cover_ge_0_9": {
+      "n": 36,
+      "median_loss_rank": 0.44827292956411247,
+      "worst": [
+        {
+          "src": "IN",
+          "tgt": "NE",
+          "cover": 0.998,
+          "loss_rank": 0.794
+        },
+        {
+          "src": "MN",
+          "tgt": "KS",
+          "cover": 0.918,
+          "loss_rank": 0.694
+        },
+        {
+          "src": "OH",
+          "tgt": "SD",
+          "cover": 1.0,
+          "loss_rank": 0.688
+        },
+        {
+          "src": "MN",
+          "tgt": "SD",
+          "cover": 0.902,
+          "loss_rank": 0.688
+        },
+        {
+          "src": "IL",
+          "tgt": "IA",
+          "cover": 0.91,
+          "loss_rank": 0.67
+        }
+      ]
+    }
+  },
+  "F1_irrigation": {
+    "rho_irr_absdiff_vs_loss_rank": {
+      "rho": -0.0010958246512454374,
+      "p_qap": 0.9921
+    },
+    "rho_sub_cover_vs_loss_rank": {
+      "rho": -0.26762095710250444,
+      "p_qap": 0.0045
+    },
+    "rho_geo_km_vs_loss_rank": {
+      "rho": 0.4149731407887722,
+      "p_qap": 0.0013
+    },
+    "rho_irr_absdiff_vs_loss_rank_covered": {
+      "rho": 0.10561662352956025,
+      "p_qap": 0.3104,
+      "n_pairs": 132
+    },
+    "partial_irr_absdiff_given_distance_gdd_fe": {
+      "std_coef": -0.034404981649967824,
+      "t": -0.25736790457364966,
+      "p_dsp_qap": 0.8229
+    },
+    "partial_irr_absdiff_given_distance_gdd_overlap_fe": {
+      "std_coef": -0.006735582082180399,
+      "t": -0.05051974752218774,
+      "p_dsp_qap": 0.965
+    },
+    "within_target_irrigation": {
+      "all_pairs_median_rho_irr_vs_relative": 0.1528899595136779,
+      "NE_target": {
+        "n": 11,
+        "median_rho_irr_vs_residual": 0.3728918572462241,
+        "median_rho_irr_vs_relative": 0.35591407429655897,
+        "rho_irr_vs_oracle_residual": 0.1569665646645595,
+        "n_relative_positive": 11,
+        "sign_test_p": 0.00048828125,
+        "by_source": {
+          "IA": {
+            "residual": 0.345,
+            "relative": 0.317
+          },
+          "IL": {
+            "residual": 0.394,
+            "relative": 0.374
+          },
+          "IN": {
+            "residual": 0.288,
+            "relative": 0.234
+          },
+          "KS": {
+            "residual": 0.442,
+            "relative": 0.426
+          },
+          "MI": {
+            "residual": 0.342,
+            "relative": 0.321
+          },
+          "MN": {
+            "residual": 0.433,
+            "relative": 0.425
+          },
+          "MO": {
+            "residual": 0.373,
+            "relative": 0.356
+          },
+          "ND": {
+            "residual": 0.285,
+            "relative": 0.25
+          },
+          "OH": {
+            "residual": 0.386,
+            "relative": 0.367
+          },
+          "SD": {
+            "residual": 0.301,
+            "relative": 0.272
+          },
+          "WI": {
+            "residual": 0.401,
+            "relative": 0.385
+          }
+        }
+      },
+      "KS_target": {
+        "n": 11,
+        "median_rho_irr_vs_residual": 0.3946437600780004,
+        "median_rho_irr_vs_relative": 0.4043094099278167,
+        "rho_irr_vs_oracle_residual": 0.1995065630952499,
+        "n_relative_positive": 10,
+        "sign_test_p": 0.005859375,
+        "by_source": {
+          "IA": {
+            "residual": 0.217,
+            "relative": 0.16
+          },
+          "IL": {
+            "residual": 0.359,
+            "relative": 0.352
+          },
+          "IN": {
+            "residual": 0.358,
+            "relative": 0.343
+          },
+          "MI": {
+            "residual": 0.395,
+            "relative": 0.404
+          },
+          "MN": {
+            "residual": 0.448,
+            "relative": 0.476
+          },
+          "MO": {
+            "residual": 0.068,
+            "relative": -0.058
+          },
+          "ND": {
+            "residual": 0.51,
+            "relative": 0.55
+          },
+          "NE": {
+            "residual": 0.551,
+            "relative": 0.603
+          },
+          "OH": {
+            "residual": 0.337,
+            "relative": 0.33
+          },
+          "SD": {
+            "residual": 0.557,
+            "relative": 0.618
+          },
+          "WI": {
+            "residual": 0.504,
+            "relative": 0.551
+          }
+        }
+      }
+    }
+  },
+  "F2_ridge": {
+    "E1": [
+      {
+        "arm": "AEF",
+        "direction": "East->West",
+        "R2": -0.161,
+        "R2_level": 0.372,
+        "bias": 29.761
+      },
+      {
+        "arm": "AEF",
+        "direction": "West->East",
+        "R2": 0.207,
+        "R2_level": 0.413,
+        "bias": 11.896
+      },
+      {
+        "arm": "AEF+clim",
+        "direction": "East->West",
+        "R2": -0.219,
+        "R2_level": 0.367,
+        "bias": 31.18
+      },
+      {
+        "arm": "AEF+clim",
+        "direction": "West->East",
+        "R2": 0.273,
+        "R2_level": 0.414,
+        "bias": 9.818
+      },
+      {
+        "arm": "clim",
+        "direction": "East->West",
+        "R2": -0.535,
+        "R2_level": -0.188,
+        "bias": 23.999
+      },
+      {
+        "arm": "clim",
+        "direction": "West->East",
+        "R2": -0.629,
+        "R2_level": -0.304,
+        "bias": -14.946
+      }
+    ],
+    "AEF": {
+      "median": {
+        "R2": {
+          "ridge": -0.19764526339094524,
+          "rf": -0.0161959223740317
+        },
+        "R2_level": {
+          "ridge": 0.26058213814941206,
+          "rf": 0.23820563503091113
+        },
+        "R2_oracle": {
+          "ridge": 0.8006214861877967,
+          "rf": 0.7406342716566663
+        },
+        "loss_level": {
+          "ridge": 0.38232262989298343,
+          "rf": 0.3091244442292886
+        },
+        "loss_rank": {
+          "ridge": 0.5162469196514669,
+          "rf": 0.5130551803689484
+        }
+      },
+      "share_R2_negative": {
+        "ridge": 0.6060606060606061,
+        "rf": 0.5151515151515151
+      },
+      "median_share_predictions_below_source_min": 0.0,
+      "rho_sub_cover_vs_loss_rank": {
+        "rho": -0.38807283484180904,
+        "p_qap": 0.0012
+      },
+      "rho_geo_km_vs_loss_rank": {
+        "rho": 0.3960519018106009,
+        "p_qap": 0.0001
+      }
+    },
+    "AEF+clim": {
+      "median": {
+        "R2": {
+          "ridge": -0.3404359340897056,
+          "rf": -0.0209003180366132
+        },
+        "R2_level": {
+          "ridge": 0.18950126404474926,
+          "rf": 0.24040873170356364
+        },
+        "R2_oracle": {
+          "ridge": 0.803959726841998,
+          "rf": 0.7429473038217762
+        },
+        "loss_level": {
+          "ridge": 0.5117244452484162,
+          "rf": 0.294370166182983
+        },
+        "loss_rank": {
+          "ridge": 0.5890955458636746,
+          "rf": 0.5258157209520667
+        }
+      },
+      "share_R2_negative": {
+        "ridge": 0.6590909090909091,
+        "rf": 0.5075757575757576
+      },
+      "median_share_predictions_below_source_min": 0.0,
+      "rho_sub_cover_vs_loss_rank": {
+        "rho": -0.3693478246376448,
+        "p_qap": 0.0009
+      },
+      "rho_geo_km_vs_loss_rank": {
+        "rho": 0.421975982131493,
+        "p_qap": 0.0001
+      }
+    },
+    "clim": {
+      "median": {
+        "R2": {
+          "ridge": -1.2766390674132306,
+          "rf": -0.8091177646200229
+        },
+        "R2_level": {
+          "ridge": -0.30661975579709033,
+          "rf": -0.05745742434397
+        },
+        "R2_oracle": {
+          "ridge": 0.3162257657396439,
+          "rf": 0.5633631176852649
+        },
+        "loss_level": {
+          "ridge": 0.9036382156910003,
+          "rf": 0.6916393668088896
+        },
+        "loss_rank": {
+          "ridge": 0.5933454405981676,
+          "rf": 0.603881614665287
+        }
+      },
+      "share_R2_negative": {
+        "ridge": 0.9621212121212122,
+        "rf": 0.9393939393939394
+      },
+      "median_share_predictions_below_source_min": 0.0,
+      "rho_sub_cover_vs_loss_rank": {
+        "rho": -0.17928328108946062,
+        "p_qap": 0.1281
+      },
+      "rho_geo_km_vs_loss_rank": {
+        "rho": 0.31240395343219923,
+        "p_qap": 0.0063
+      }
+    }
+  },
+  "F3_geography": {
+    "median_variance_shares": {
+      "AEF": {
+        "between_state": 0.4781,
+        "between_county": 0.761,
+        "location_surface": 0.5505
+      },
+      "clim": {
+        "between_state": 0.3119,
+        "between_county": 0.4502,
+        "location_surface": 0.3843
+      },
+      "yield": {
+        "between_state": 0.4449,
+        "between_county": 0.7969,
+        "location_surface": 0.4403
+      }
+    },
+    "yield_within_county_variance_share": 0.2030721619534207,
+    "skill": {
+      "AEF": {
+        "within_county_anomaly_R2": 0.2565101255275965,
+        "county_mean_R2": 0.9077797329533703
+      },
+      "clim": {
+        "within_county_anomaly_R2": -0.05377792090774132,
+        "county_mean_R2": 0.6899014814312754
+      },
+      "AEF+clim": {
+        "within_county_anomaly_R2": 0.28307398738537226,
+        "county_mean_R2": 0.9077287974749343
+      }
+    }
+  }
+}

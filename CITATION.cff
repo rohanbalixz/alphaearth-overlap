@@ -23,3 +23,12 @@ references:
     journal: "International Journal of Applied Earth Observation and Geoinformation"
     year: 2026
     doi: 10.1016/j.jag.2026.105258
+  - type: data
+    title: "Estimated use of water in the United States county-level data for 2015 (ver. 2.0)"
+    authors:
+      - family-names: Dieter
+        given-names: C. A.
+      - name: "U.S. Geological Survey"
+    year: 2018
+    doi: 10.5066/F7TB15V5
+    notes: "Used only in the exploratory follow-ups (irrigation share)."

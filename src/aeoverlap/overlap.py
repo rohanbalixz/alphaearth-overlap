@@ -48,15 +48,21 @@ def full_space(src, tgt, cols):
     return _summ(_crossfit_propensity(X, d, g), d)
 
 
-def yield_subspace(src, tgt, cols, k=K_PLS):
-    """Domain classifier on the source-fitted PLS(k) subspace of yield-relevant directions."""
+def subspace_propensity(src, tgt, cols, k=K_PLS):
+    """Cross-fitted P(source | z) for every source and target row, z = source-fitted PLS(k) scores.
+    Returns (e, d) with d = 1 for source rows and 0 for target rows (target rows last, in order)."""
     sc = StandardScaler().fit(src[cols].values)
     pls = PLSRegression(n_components=k).fit(sc.transform(src[cols].values), src.y.values)
     Z = np.vstack([pls.transform(sc.transform(src[cols].values)),
                    pls.transform(sc.transform(tgt[cols].values))])
     d = np.r_[np.ones(len(src)), np.zeros(len(tgt))]
     g = np.r_[src.FIPS.values, tgt.FIPS.values]
-    return _summ(_crossfit_propensity(Z, d, g), d)
+    return _crossfit_propensity(Z, d, g), d
+
+
+def yield_subspace(src, tgt, cols, k=K_PLS):
+    """Domain classifier on the source-fitted PLS(k) subspace of yield-relevant directions."""
+    return _summ(*subspace_propensity(src, tgt, cols, k))
 
 
 def knn_cover(src, tgt, cols, q=0.95):
