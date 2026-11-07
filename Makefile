@@ -5,6 +5,7 @@ PY ?= .venv/bin/python
 
 setup:            ## create .venv with the pinned environment and install the package
 	python3 -m venv .venv
+	.venv/bin/python -m pip install --upgrade pip   # pip >= 21.3 needed for editable pyproject installs
 	.venv/bin/pip install -r requirements.txt
 	.venv/bin/pip install -e . --no-deps
 

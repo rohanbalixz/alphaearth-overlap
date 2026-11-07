@@ -1,5 +1,6 @@
 # Exact environment used for the committed results (Python 3.9.6, macOS arm64).
-# Install: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/pip install -e . --no-deps
+# Install (or `make setup`): python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip
+#   && .venv/bin/pip install -r requirements.txt && .venv/bin/pip install -e . --no-deps
 numpy==2.0.2
 pandas==2.2.3
 scikit-learn==1.6.1
