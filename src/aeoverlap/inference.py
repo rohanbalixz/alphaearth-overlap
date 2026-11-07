@@ -1,13 +1,17 @@
-"""Inference for 132 ordered state pairs. Pairs share states (each state is in 22 pairs), so ordinary
-p-values are anti-conservative. We use QAP permutation: relabel the 12 states with one random
-permutation, applied to rows and columns of the predictor matrix at once (Krackhardt 1988), and
-double-semi-partialling (DSP; Dekker, Krackhardt & Snijders 2007) for partial effects.
+"""Inference for 132 ordered state pairs.
+
+Pairs share states (each state appears in 22 pairs), so ordinary p-values are anti-conservative.
+We use QAP permutation: relabel the 12 states with one random permutation applied to the rows and
+columns of the predictor matrix at once (Krackhardt 1988), and double-semi-partialling (DSP;
+Dekker, Krackhardt & Snijders 2007) for partial effects.
 """
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata
 
-from common import STATES
+from .data import STATES
 
 IDX = {s: i for i, s in enumerate(STATES)}
 
@@ -28,7 +32,8 @@ def _rankmat(pairs, col):
     return _mat(r, "_r")
 
 
-def qap_spearman(pairs, x, y, n_perm=9999, seed=0):
+def qap_spearman(pairs, x, y, n_perm=9999, seed=0) -> tuple[float, float]:
+    """Spearman rho between pair-level x and y with a two-sided QAP permutation p-value."""
     rng = np.random.default_rng(seed)
     Rx, ry = _rankmat(pairs, x), rankdata(pairs[y])
     rho = np.corrcoef(_vec(Rx, pairs), ry)[0, 1]
@@ -58,13 +63,15 @@ def _tstat(yv, xv, Z):
     return beta[0], beta[0] / np.sqrt(cov[0, 0])
 
 
-def dsp_partial(pairs, x, y, controls, fe=True, n_perm=9999, seed=0):
-    """Partial effect of rank(x) on rank(y) given rank(controls) (+ source and target fixed effects).
-    Returns standardized coefficient (both sides z-scored ranks), t, and DSP-QAP p-value."""
+def dsp_partial(pairs, x, y, controls, fe=True, n_perm=9999, seed=0) -> tuple[float, float, float]:
+    """Partial effect of rank(x) on rank(y) given rank(controls), plus source and target fixed
+    effects. Returns the standardized coefficient (z-scored ranks), its t, and the DSP-QAP p-value."""
     rng = np.random.default_rng(seed)
     Z = _design(pairs, controls, fe)
-    yv = rankdata(pairs[y]); yv = (yv - yv.mean()) / yv.std()
-    xv = rankdata(pairs[x]); xv = (xv - xv.mean()) / xv.std()
+    yv = rankdata(pairs[y])
+    yv = (yv - yv.mean()) / yv.std()
+    xv = rankdata(pairs[x])
+    xv = (xv - xv.mean()) / xv.std()
     bx, *_ = np.linalg.lstsq(Z, xv, rcond=None)
     xres = xv - Z @ bx                                   # semi-partial x on the controls
     coef, t = _tstat(yv, xres, Z)

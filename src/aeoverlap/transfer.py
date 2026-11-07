@@ -1,31 +1,33 @@
-"""Transfer metrics.
+"""Transfer metrics, the target-state oracle and the loss decomposition.
 
-For target t and predictions p:
-  R2        = 1 - SSE / SST about the target mean   (paper Eq. 9)
-  R2_level  = R2 after shifting p so its mean equals the target's mean yield. The target mean is
-              the kind of aggregate NASS publishes, so this is the part of the loss an aggregate-
-              statistics correction (as in Kluger, Wang & Lobell 2021) can remove.
-Oracle R2(t): RF trained inside t, 5-fold CV holding out whole counties (unseen places, seen years,
-              which matches what a transferred model faces).
+For a target state t and predictions p:
+  R2        = 1 - SSE / SST about the target mean (Ma et al. 2026, Eq. 9).
+  R2_level  = R2 after shifting p so that its mean equals the target's mean yield. That mean is the
+              kind of aggregate NASS publishes, so this is the part of the loss an aggregate-
+              statistics correction (as in Kluger, Wang & Lobell 2021) could remove.
+Oracle R2(t): random forest trained inside t, 5-fold CV holding out whole counties (unseen places,
+              seen years, which is what a transferred model faces).
 Loss decomposition:
   loss_total = R2_oracle - R2
-  loss_level = R2_level  - R2          (fixable with the target's mean)
-  loss_rank  = R2_oracle - R2_level    (not fixable that way; primary outcome for P2)
+  loss_level = R2_level  - R2          (removable with the target's mean)
+  loss_rank  = R2_oracle - R2_level    (not removable that way; primary outcome for P2)
 """
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GroupKFold
 
-from common import N_TREES, SEEDS, STATES
+from .data import N_TREES, SEEDS, STATES
 
 
-def rf(seed):
+def rf(seed: int) -> RandomForestRegressor:
     return RandomForestRegressor(n_estimators=N_TREES, random_state=seed, n_jobs=-1)
 
 
-def metrics(y, p):
+def metrics(y, p) -> dict:
     y, p = np.asarray(y, float), np.asarray(p, float)
     p_lvl = p - p.mean() + y.mean()
     return dict(R2=r2_score(y, p), R2_level=r2_score(y, p_lvl),
@@ -33,8 +35,8 @@ def metrics(y, p):
                 rmse=float(np.sqrt(np.mean((y - p) ** 2))), bias=float(p.mean() - y.mean()))
 
 
-def region_transfer(df, arms, east, west):
-    """E1: paper Table 6 (county corn, RF). Mean over seeds."""
+def region_transfer(df, arms, east, west) -> pd.DataFrame:
+    """E1: Ma et al. (2026), Table 6 (county corn, RF), East <-> West. Mean over seeds."""
     E, W = df[df.st.isin(east)], df[df.st.isin(west)]
     rows = []
     for arm, cols in arms.items():
@@ -44,7 +46,8 @@ def region_transfer(df, arms, east, west):
     return pd.DataFrame(rows)
 
 
-def oracle(frames, cols):
+def oracle(frames, cols) -> dict[str, float]:
+    """Within-target R2 under 5-fold CV that holds out whole counties; mean over seeds."""
     out = {}
     for t in STATES:
         T = frames[t]
@@ -58,7 +61,7 @@ def oracle(frames, cols):
     return out
 
 
-def pair_matrix(frames, cols):
+def pair_matrix(frames, cols) -> pd.DataFrame:
     """E3: train in each state (all years), test in every other state (all years)."""
     acc = {}
     for seed in SEEDS:

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aeoverlap"
+version = "0.1.0"
+description = "Does feature-space overlap predict when satellite crop-yield models transfer across regions? A pre-registered test with AlphaEarth embeddings in the U.S. Corn Belt."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Rohan Bali" }]
+keywords = ["remote sensing", "domain shift", "positivity", "overlap", "crop yield", "AlphaEarth", "transfer learning"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scikit-learn>=1.4",
+    "scipy>=1.11",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+gee = ["earthengine-api>=1.0"]
+dev = ["pytest>=7", "ruff>=0.5"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E741"]

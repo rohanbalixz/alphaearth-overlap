@@ -1,4 +1,6 @@
-"""Turn the Earth Engine export (data/gee/rs_harm_*.csv) into the paper's 80 RS features
+"""Run: python -m aeoverlap.rs_features.
+
+Turns the Earth Engine export (data/gee/rs_harm_*.csv) into the paper's 80 RS features
 (data/rs_features.csv): for each of 8 bands, 5 harmonic coefficients + peak, b30, a30, b30_int,
 a30_int computed from the county's fitted curve (Ma et al. 2026, Sec. 3.4; Deines et al. 2021).
 
@@ -6,14 +8,16 @@ The paper defines Band_peak as "the maximum value in the growing season" for eve
 definition is followed literally here. Integrals are in reflectance x days; a random forest does not
 depend on that scale.
 """
-import sys
-from pathlib import Path
+from __future__ import annotations
 
-sys.path.insert(0, str(Path(__file__).parent))
+import sys
+
 import numpy as np
 import pandas as pd
 
-from common import DATA
+from .data import DATA
+
+_trapezoid = getattr(np, "trapezoid", None) or np.trapz   # numpy >= 2.0 renamed trapz
 
 YVARS = ["blue", "green", "red", "nir", "swir1", "swir2", "ndvi", "gcvi"]
 XVARS = ["c", "cos1", "sin1", "cos2", "sin2"]
@@ -39,8 +43,8 @@ def phenology(coef):
     b_int, a_int = [], []
     for i in range(len(pk)):
         db, da = np.arange(pk[i] - 30, pk[i] + 1), np.arange(pk[i], pk[i] + 31)
-        b_int.append(np.trapz(curve(coef[i:i + 1], db)[0], db))
-        a_int.append(np.trapz(curve(coef[i:i + 1], da)[0], da))
+        b_int.append(_trapezoid(curve(coef[i:i + 1], db)[0], db))
+        a_int.append(_trapezoid(curve(coef[i:i + 1], da)[0], da))
     out["b30_int"], out["a30_int"] = np.array(b_int), np.array(a_int)
     return out
 
@@ -59,7 +63,7 @@ def build(raw):
     return pd.DataFrame(feats)
 
 
-def main():
+def main() -> None:
     full, lite = sorted((DATA / "gee").glob("rs_harm_*.csv")), sorted((DATA / "gee").glob("rs_lite_*.csv"))
     if full and lite:
         sys.exit("data/gee/ holds both rs_harm_* (full) and rs_lite_* files; keep one kind")

@@ -25,15 +25,14 @@ Usage:
   python gee/export_landsat_harmonics.py --project <gcp-project> --lite        # low compute: GCVI+NDVI, 120 m
   python gee/export_landsat_harmonics.py --project <gcp-project> --lite --years 2017   # measure cost first
   # Tasks write CSVs to Google Drive folder alphaearth_overlap/. Put them in data/gee/, then:
-  .venv/bin/python src/rs_features.py
+  .venv/bin/python -m aeoverlap.rs_features
 """
 import argparse
+import math
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
-import math
-
-import ee
+import ee  # noqa: E402
 
 STATEFP = {"IL": "17", "IN": "18", "IA": "19", "KS": "20", "MI": "26", "MN": "27",
            "MO": "29", "NE": "31", "ND": "38", "OH": "39", "SD": "46", "WI": "55"}
@@ -112,7 +111,8 @@ def main():
 
     if a.smoke:
         cty = ee.FeatureCollection("TIGER/2018/Counties").filter(ee.Filter.eq("GEOID", a.smoke))
-        props = county_coefficients(a.years[0], cty, a.start, a.end, a.min_obs, yvars, scale).first().getInfo()["properties"]
+        fc = county_coefficients(a.years[0], cty, a.start, a.end, a.min_obs, yvars, scale)
+        props = fc.first().getInfo()["properties"]
         for k in selectors:
             v = props.get(k)
             print(f"  {k:12s} {v:.4f}" if isinstance(v, float) else f"  {k:12s} {v}")
@@ -125,7 +125,8 @@ def main():
         w = 2 * np.pi * (days - 1) / 365.25
         g = (props["c_gcvi"] + props["cos1_gcvi"] * np.cos(w) + props["sin1_gcvi"] * np.sin(w)
              + props["cos2_gcvi"] * np.cos(2 * w) + props["sin2_gcvi"] * np.sin(2 * w))
-        print(f"  fitted GCVI peak {g.max():.2f} on day {days[g.argmax()]}; mean clear obs per pixel {props['nobs']:.1f}")
+        print(f"  fitted GCVI peak {g.max():.2f} on day {days[g.argmax()]}; "
+              f"mean clear obs per pixel {props['nobs']:.1f}")
         ok = 150 <= days[g.argmax()] <= 250 and 1.5 <= g.max() <= 12 and props["nobs"] >= a.min_obs
         print("SMOKE OK" if ok else "SMOKE SUSPICIOUS: check the values above before exporting")
         return

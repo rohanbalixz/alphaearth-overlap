@@ -1,19 +1,19 @@
-"""results/figure.png: (a) how much of each target state the source covers, in the full feature
-space vs the yield-relevant subspace; (b) subspace coverage vs the ranking part of transfer loss.
+"""Run: python -m aeoverlap.figures. Writes results/figure.png:
+(a) how much of each target state the source covers, in the full feature space vs the yield-relevant
+subspace; (b) subspace coverage vs the ranking part of transfer loss; (c) overlap vs simpler predictors.
 Colors follow the input type (fixed, never by rank); marker shape is a second encoding."""
-import json
-import sys
-from pathlib import Path
+from __future__ import annotations
 
-sys.path.insert(0, str(Path(__file__).parent))
+import json
+
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
-from common import RESULTS
+from .data import DATA, RESULTS  # noqa: E402
 
 INK, INK2, GRID, SURF = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 STYLE = {  # fixed categorical slots 1-3 of the reference palette (validated all-pairs for 3 series)
@@ -23,8 +23,8 @@ STYLE = {  # fixed categorical slots 1-3 of the reference palette (validated all
 }
 
 
-def main():
-    rs_file = RESULTS.parent / "data" / "rs_features.csv"
+def main() -> None:
+    rs_file = DATA / "rs_features.csv"
     if rs_file.exists() and len(pd.read_csv(rs_file, nrows=1).columns) - 2 == 20:
         STYLE["RS-noclim"]["label"] = "Landsat GCVI+NDVI (lite)"          # PREREGISTRATION Amendment 1
     pairs = pd.read_csv(RESULTS / "pairs.csv")
@@ -41,7 +41,7 @@ def main():
     for a in arms:
         rows += [(f"{STYLE[a]['label']}\nall features", a, "full_cover"),
                  (f"{STYLE[a]['label']}\nyield-relevant", a, "sub_cover")]
-    for i, (lab, a, col) in enumerate(rows):
+    for i, (_, a, col) in enumerate(rows):
         v = pairs.loc[pairs.arm == a, col].values
         y = i + rng.uniform(-0.22, 0.22, len(v))
         ax1.scatter(v, y, s=22, color=STYLE[a]["color"], marker=STYLE[a]["marker"], alpha=0.55,
@@ -106,8 +106,10 @@ def main():
         ax.set_axisbelow(True)
         for s in ("top", "right"):
             ax.spines[s].set_visible(False)
-    fig.text(0.01, 0.005, "County corn yield, 12 Corn Belt states, 2017–2024 (data: Ma, Shen, Swatantran & Lobell 2026). "
-             "Random forest, 200 trees, 5 seeds. Overlap uses no target yields. AEF+climate is ~identical to AEF and omitted.",
+    fig.text(0.01, 0.005,
+             "County corn yield, 12 Corn Belt states, 2017–2024 (data: Ma, Shen, Swatantran & Lobell 2026). "
+             "Random forest, 200 trees, 5 seeds. Overlap uses no target yields. "
+             "AEF+climate is ~identical to AEF and omitted.",
              fontsize=7.5, color=INK2)
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(RESULTS / "figure.png", dpi=200)
