@@ -28,6 +28,9 @@ Usage:
   .venv/bin/python src/rs_features.py
 """
 import argparse
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 import math
 
 import ee
@@ -93,6 +96,8 @@ def main():
     ap.add_argument("--lite", action="store_true",
                     help="low-compute version: GCVI + NDVI only, county means at 120 m (PREREGISTRATION Amendment 1)")
     ap.add_argument("--scale", type=int, default=None, help="reduceRegions scale in m (default 30; 120 with --lite)")
+    ap.add_argument("--smoke", metavar="GEOID", default=None,
+                    help="compute ONE county for the first --years value interactively (no export), print and check it")
     a = ap.parse_args()
     yvars = ["ndvi", "gcvi"] if a.lite else YVARS
     scale = a.scale or (120 if a.lite else 30)
@@ -104,6 +109,26 @@ def main():
     groups = {k: [v] for k, v in STATEFP.items()} if a.per_state else {"all": list(STATEFP.values())}
     selectors = ["GEOID", "STATEFP", "year", "nobs"] + [f"{x}_{y}" for x in XVARS for y in yvars]
     print(f"bands {yvars}, scale {scale} m, years {a.years}")
+
+    if a.smoke:
+        cty = ee.FeatureCollection("TIGER/2018/Counties").filter(ee.Filter.eq("GEOID", a.smoke))
+        props = county_coefficients(a.years[0], cty, a.start, a.end, a.min_obs, yvars, scale).first().getInfo()["properties"]
+        for k in selectors:
+            v = props.get(k)
+            print(f"  {k:12s} {v:.4f}" if isinstance(v, float) else f"  {k:12s} {v}")
+        missing = [k for k in selectors if props.get(k) is None]
+        if missing:
+            raise SystemExit(f"SMOKE FAILED: missing {missing}")
+        # the fitted GCVI curve for a corn county should peak in summer at a plausible level
+        import numpy as np
+        days = np.arange(91, 306)
+        w = 2 * np.pi * (days - 1) / 365.25
+        g = (props["c_gcvi"] + props["cos1_gcvi"] * np.cos(w) + props["sin1_gcvi"] * np.sin(w)
+             + props["cos2_gcvi"] * np.cos(2 * w) + props["sin2_gcvi"] * np.sin(2 * w))
+        print(f"  fitted GCVI peak {g.max():.2f} on day {days[g.argmax()]}; mean clear obs per pixel {props['nobs']:.1f}")
+        ok = 150 <= days[g.argmax()] <= 250 and 1.5 <= g.max() <= 12 and props["nobs"] >= a.min_obs
+        print("SMOKE OK" if ok else "SMOKE SUSPICIOUS: check the values above before exporting")
+        return
     for year in a.years:
         for name, fps in groups.items():
             cty = all_cty.filter(ee.Filter.inList("STATEFP", fps))
