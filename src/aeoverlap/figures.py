@@ -171,9 +171,9 @@ def fig2() -> None:
     b.set_yticks(yy, [f"{k} → NE" for k in src], fontsize=8.5)
     b.set_xlim(-0.05, 0.5)
     b.set_xlabel("Spearman ρ with county irrigation share (> 0: irrigated counties under-predicted)")
-    b.set_title(f"(b) Irrigation in Nebraska: {ne_s['n_relative_positive']} of {ne_s['n']} sources, "
-                f"sign test p = {ne_s['sign_test_p']:.2g}", loc="left", fontsize=10.5)
-    b.legend(frameon=False, fontsize=8.5, loc="upper left", labelcolor=INK, bbox_to_anchor=(0.12, 0.62))
+    b.set_title(f"(b) Irrigation in Nebraska: {ne_s['n_relative_positive']} of {ne_s['n']} sources "
+                f"(descriptive sign test p = {ne_s['sign_test_p']:.1g})", loc="left", fontsize=10.5)
+    b.legend(frameon=False, fontsize=8.5, loc="upper left", labelcolor=INK, bbox_to_anchor=(0.12, 1.0))
 
     # (c) F2: random forest vs ridge, median losses over 132 pairs (AlphaEarth)
     m = s["F2_ridge"]["AEF"]["median"]
@@ -208,9 +208,10 @@ def fig2() -> None:
         d.barh(yy + (j - 1) * 0.26, vals, height=0.24, color=col, zorder=3, label=lab)
         for yi, v in zip(yy + (j - 1) * 0.26, vals):
             d.text(v + 0.01, yi, f"{v:.0%}", va="center", fontsize=8, color=INK)
-    sk = s["F3_geography"]["skill"]["AEF"]
+    sk, skc = s["F3_geography"]["skill"]["AEF"], s["F3_geography"]["skill"]["clim"]
     d.text(0.985, 0.03, f"AlphaEarth yield skill:\nbetween counties R² {sk['county_mean_R2']:.2f}\n"
-           f"within a county, year to year,\nR² {sk['within_county_anomaly_R2']:.2f}",
+           f"within a county, year to year,\nR² {sk['within_county_anomaly_R2']:.2f} "
+           f"(climate: {skc['within_county_anomaly_R2']:.2f})",
            transform=d.transAxes, ha="right", va="bottom", fontsize=8.5, color=INK)
     d.set_yticks(yy, [r[0] for r in rows], fontsize=9)
     d.invert_yaxis()

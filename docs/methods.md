@@ -2,7 +2,7 @@
 
 This document gives the full specification behind the results in the README. Predictions, the
 primary measure and the tests were fixed in [PREREGISTRATION.md](../PREREGISTRATION.md) before any
-pair-level transfer loss was computed (commit `474b4cd`).
+pair-level transfer loss was computed (commit `5fa8c73`).
 
 ## 1. Data
 
@@ -163,6 +163,12 @@ explanations they raised. They are reported separately and carry no confirmatory
     the transfer-specific error, i.e. the transfer residual minus the target model's residual.
     Subtracting the target model's residual controls for the shrinkage that makes any model
     under-predict high-yield counties.
+  - **Selection and p-values.** Nebraska was singled out after the pre-registered results showed
+    Indiana→Nebraska failing despite full coverage. Kansas, the next most irrigated state, was
+    added when the control was introduced. The 11 transfers into one target share that target's
+    data, so the sign test across source states is descriptive, not confirmatory.
+  - **Coverage.** "Covered" uses the same three-component subspace as `sub_cover`. A finer
+    coverage measure might localize the loss better.
 - **F2, model dependence.** The E1 and E3 designs are repeated with ridge regression
   (standardized inputs, `RidgeCV`, α ∈ 10⁻³…10⁴), which extrapolates linearly. A random forest
   cannot predict outside the range of its training yields.

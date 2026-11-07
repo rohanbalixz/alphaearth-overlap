@@ -48,9 +48,14 @@ These are reported separately.
    under-predicted by models transferred from every one of the 11 other states. The median
    Spearman ρ between irrigation share and the transfer-specific error is 0.36 (11 of 11 positive,
    sign test p = 0.0005), against 0.16 for Nebraska's own model. Kansas shows the same pattern
-   (ρ = 0.40, 10 of 11, p = 0.006). This is concept shift: the same imagery means a different yield
-   under irrigation. Irrigation differences do **not** predict which state pairs lose most
-   (ρ = −0.001).
+   (ρ = 0.40, 10 of 11, p = 0.006). This is consistent with concept shift: the same imagery means a
+   different yield under irrigation. Irrigation differences do **not** predict which state pairs
+   lose most (ρ = −0.001).
+   - **Selection.** Nebraska was singled out after the pre-registered results showed
+     Indiana→Nebraska failing despite full coverage. Kansas, the next most irrigated state, was
+     added afterwards.
+   - **p-values.** The 11 transfers into one target share that target's data, so these sign-test
+     p-values are descriptive, not confirmatory.
 8. **The loss is not a random-forest artifact.** Ridge regression, which can extrapolate, loses as
    much ranking skill (median 0.52 vs 0.51) and has a larger level bias (East→West +30 vs
    +23 bu/ac). Under ridge, overlap and distance again predict the loss about equally
@@ -60,7 +65,8 @@ These are reported separately.
      across years, against 45% for climate variables.
    - **Location.** 55% of the variance lies on a smooth surface in latitude and longitude.
    - **Skill.** AEF ranks counties' mean yields very well (R² 0.91), but year-to-year changes
-     within a county only weakly (R² 0.26).
+     within a county only weakly (R² 0.26). That is still better than monthly climate variables,
+     which score R² −0.05.
 
    A model trained in one state therefore learns mostly about that state's places, which is
    consistent with overlap tracking distance.
@@ -175,6 +181,11 @@ the eight-year export does not fit the free noncommercial tier. P1 and P6 are th
   cannot separate their effects. F3 suggests why: AEF is largely a fixed description of place.
 - **Irrigation measure.** USGS 2015 irrigated area covers all crops, not corn, and is fixed in
   time. The F1 irrigation results are exploratory and county-level only.
+- **Coarse coverage.** "Covered" in F1 is defined in the three-component yield subspace. The finding
+  that coverage does not protect a county may partly reflect how coarse that measure is.
+- **Exploratory analyses.** F1–F3 were designed after the pre-registered results were known, and
+  carry no correction for multiple comparisons. Treat them as hypotheses for a new pre-registered
+  test.
 - **Choice of primary measure.** K = 3 for the PLS subspace was chosen after the probe showed
   full-space overlap to be saturated, and before any transfer loss was computed. This is disclosed
   in the pre-registration.
