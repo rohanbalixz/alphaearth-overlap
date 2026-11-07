@@ -2,6 +2,8 @@
 
 **A pre-registered test with AlphaEarth embeddings across 12 U.S. Corn Belt states**
 
+[![tests](https://github.com/rohanbalixz/alphaearth-overlap/actions/workflows/ci.yml/badge.svg)](https://github.com/rohanbalixz/alphaearth-overlap/actions/workflows/ci.yml)
+
 Geospatial foundation-model embeddings such as AlphaEarth Foundations (AEF) match traditional
 remote-sensing features for county corn-yield prediction when trained locally, but transfer much
 worse across regions (Ma, Shen, Swatantran & Lobell, 2026). This repository asks whether that

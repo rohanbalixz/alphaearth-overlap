@@ -7,6 +7,7 @@ authors:
     given-names: Rohan
 version: 0.1.0
 license: MIT
+repository-code: "https://github.com/rohanbalixz/alphaearth-overlap"
 keywords: [remote sensing, domain shift, positivity, overlap, crop yield, AlphaEarth, transfer]
 references:
   - type: article
